@@ -24,3 +24,4 @@ Thank you for being interested in the OgarioProject also known as Lar.io.
 # Team Members:
 * SkorrloreGaming-Productions (Developer/Project Lead)
 * ThunderGemios10 (Developer/CEO)
+* PoramaTV (Developer)
