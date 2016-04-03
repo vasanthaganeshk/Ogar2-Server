@@ -36,6 +36,7 @@ public abstract class EntityImpl implements Entity, Tickable {
     protected int consumer = 0;
     protected int mass = 10;
     protected boolean spiked = false;
+    protected boolean markAsEated = false;
 
     public EntityImpl(EntityType type, WorldImpl world, Position position) {
         this.id = nextEntityId.getAndIncrement();
@@ -52,6 +53,18 @@ public abstract class EntityImpl implements Entity, Tickable {
     @Override
     public EntityType getType() {
         return type;
+    }
+    
+    @Override
+    public boolean isMarkAsEated()
+    {
+    	return markAsEated;
+    }
+    
+    @Override
+    public void setIsMarkAsEated(boolean flag)
+    {
+    	markAsEated = flag;
     }
 
     @Override
