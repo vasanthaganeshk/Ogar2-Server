@@ -55,13 +55,11 @@ public abstract class EntityImpl implements Entity, Tickable {
         return type;
     }
     
-    @Override
     public boolean isMarkAsEated()
     {
     	return markAsEated;
     }
     
-    @Override
     public void setIsMarkAsEated(boolean flag)
     {
     	markAsEated = flag;
