@@ -40,4 +40,10 @@ public class VirusImpl extends EntityImpl implements Virus {
     public void tick() {
         //TODO: Add code to split player into pieces when hit
     }
+    
+    @Override
+    public void onRemove()
+    {
+    	getWorld().getServer().getVirusList().removeVirus(this);
+    }
 }
