@@ -1,4 +1,4 @@
-# Ogar2-Server [![Travis-CI](https://travis-ci.org/OgarioProject/Ogar2-Server.svg)](https://travis-ci.org/OgarioProject/Ogar2-Server)
+# Ogar2-Server [![Travis-CI](https://travis-ci.org/OgarioProject/Ogar2-Server.svg)](https://travis-ci.org/OgarioProject/Ogar2-Server) [![Language](https://img.shields.io/badge/language-Java-brown.svg)](https://github.com/OgarioProject/Ogar2-Server)
 
 Thank you for being interested in the OgarioProject also known as Lar.io.
 
