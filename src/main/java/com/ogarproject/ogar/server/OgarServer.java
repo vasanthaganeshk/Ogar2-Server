@@ -58,6 +58,9 @@ public class OgarServer implements Server {
     private static OgarServer instance;
     public static final Logger log = Logger.getGlobal();
     private final PlayerList playerList = new PlayerList(this);
+    private final VirusList virusList = new VirusList();
+    private final MassList massList = new MassList();
+    private final FoodList foodList = new FoodList();
     private final String configurationFile = "server.properties";
     private final boolean debugMode = Boolean.getBoolean("debug");
     private final Set<TickWorker> tickWorkers = new HashSet<TickWorker>();
@@ -91,6 +94,18 @@ public class OgarServer implements Server {
 
     public PlayerList getPlayerList() {
         return playerList;
+    }
+    
+    public MassList getMassList() {
+    	return massList;
+    }
+
+    public FoodList getFoodList() {
+    	return foodList;
+    }
+
+    public VirusList getVirusList() {
+    	return virusList;
     }
 
     public WorldImpl getWorld() {
@@ -223,11 +238,13 @@ public class OgarServer implements Server {
         }
         log.info("Enabling plugins.");
         pluginManager.enablePlugins();
+        log.info("Start listening on port " + getConfig().server.port);
         networkManager = new NetworkManager(this);
         try {
             networkManager.start();
         } catch (IOException | InterruptedException ex) {
             log.info("Failed to start server! "+ex.getMessage());
+            ex.printStackTrace();
             if (ServerGUI.isSpawned()) {
             	System.exit(1);
             } else {
@@ -245,7 +262,7 @@ public class OgarServer implements Server {
                     tick(player.getTracker()::updateNodes);
                 }
                 for(PlayerImpl player : instance.getPlayerList().getAllPlayers())
-                    player.getConnection().sendPacket(new com.ogarproject.ogar.server.net.packet.outbound.PacketOutUpdateLeaderboardFFA(instance));
+                    player.getConnection().sendPacket(new PacketOutUpdateLeaderboardFFA(instance));
                 tickWorkers.forEach(TickWorker::waitForCompletion);
                 scheduler.serverTick(tick);
                 long tickDuration = System.currentTimeMillis() - startTime;
