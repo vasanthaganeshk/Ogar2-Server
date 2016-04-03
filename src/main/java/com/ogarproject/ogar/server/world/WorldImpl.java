@@ -100,15 +100,15 @@ public class WorldImpl implements World {
                 break;
             case FOOD:
                 entity = new FoodImpl(this, position);
-                server.getFoodList().addFood((FoodEntityImpl)entity);
+                server.getFoodList().addFood((FoodImpl)entity);
                 break;
             case MASS:
                 entity = new MassImpl(this, position);
-                server.getMassList().addMass((MassEntityImpl)entity);
+                server.getMassList().addMass((MassImpl)entity);
                 break;
             case VIRUS:
                 entity = new VirusImpl(this, position);
-                server.getVirusList().addVirus((VirusEntityImpl)entity);
+                server.getVirusList().addVirus((VirusImpl)entity);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported entity type: " + type);
