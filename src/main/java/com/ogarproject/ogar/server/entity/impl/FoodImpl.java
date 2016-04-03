@@ -49,4 +49,10 @@ public class FoodImpl extends EntityImpl implements Food {
     @Override
     public void tick() {
     }
+    
+    @Override
+    public void onRemove()
+    {
+    	getWorld().getServer().getFoodList().removeFood(this);
+    }
 }
