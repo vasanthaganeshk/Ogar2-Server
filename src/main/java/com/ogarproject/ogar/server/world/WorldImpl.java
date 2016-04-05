@@ -24,7 +24,6 @@ import com.ogarproject.ogar.api.entity.EntityType;
 import com.ogarproject.ogar.api.world.World;
 import com.ogarproject.ogar.server.OgarServer;
 import com.ogarproject.ogar.server.config.OgarConfig;
-import com.ogarproject.ogar.server.config.OgarConfig.World.Food;
 import com.ogarproject.ogar.server.entity.EntityImpl;
 import com.ogarproject.ogar.server.entity.impl.CellImpl;
 import com.ogarproject.ogar.server.entity.impl.FoodImpl;
@@ -33,7 +32,6 @@ import com.ogarproject.ogar.server.entity.impl.VirusImpl;
 import com.ogarproject.ogar.server.tick.Tickable;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import jline.internal.Log;
 
 import java.util.Collection;
 import java.util.List;
@@ -202,11 +200,14 @@ public class WorldImpl implements World {
                 spawnFood();
             }
 
-            for (EntityImpl entity : entities.valueCollection()) {
+            for (Object entityobj :  entities.valueCollection().toArray()) {
+                EntityImpl entity = (EntityImpl) entityobj;
+                entity.AutoUpdatePhysics(entity);
                 serverTick.accept(entity);
             }
         } catch (Exception ex){
             Logger.getGlobal().warning("An internal error has occured while rendering, continuing to suppress...");
+            ex.printStackTrace();
         }
     }
 

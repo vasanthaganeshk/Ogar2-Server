@@ -1,16 +1,16 @@
 /**
  * This file is part of Ogar.
- *
+ * <p>
  * Ogar is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * Ogar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with Ogar.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,31 +19,25 @@ package com.ogarproject.ogar.server.net;
 import com.google.common.base.Preconditions;
 import com.ogarproject.ogar.api.Ogar;
 import com.ogarproject.ogar.api.entity.Cell;
+import com.ogarproject.ogar.api.entity.Entity;
 import com.ogarproject.ogar.api.entity.EntityType;
 import com.ogarproject.ogar.api.event.player.PlayerConnectedEvent;
 import com.ogarproject.ogar.api.event.player.PlayerConnectingEvent;
 import com.ogarproject.ogar.api.event.player.PlayerNameChangeEvent;
+import com.ogarproject.ogar.api.world.Position;
 import com.ogarproject.ogar.server.OgarServer;
+import com.ogarproject.ogar.server.entity.EntityImpl;
 import com.ogarproject.ogar.server.entity.impl.CellImpl;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInToken;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInReleaseQ;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInMouseMove;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInEjectMass;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInAuthenticate;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInPressQ;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInSplit;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInSetNick;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInResetConnection;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInSpectate;
 import com.ogarproject.ogar.server.net.packet.Packet;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInFacebookLogin;
-import com.ogarproject.ogar.server.net.packet.inbound.PacketInGoogleLogin;
+import com.ogarproject.ogar.server.net.packet.inbound.*;
 import com.ogarproject.ogar.server.net.packet.outbound.PacketOutWorldBorder;
 import com.ogarproject.ogar.server.net.packet.universal.PacketChat;
 import com.ogarproject.ogar.server.net.packet.universal.PacketOMPMessage;
 import com.ogarproject.ogar.server.net.throwable.UnhandledPacketException;
+import com.ogarproject.ogar.server.physic.Vector;
 import com.ogarproject.ogar.server.world.PlayerImpl;
 import io.netty.channel.Channel;
+
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +46,7 @@ import java.util.logging.Logger;
 
 public class PlayerConnection {
 
+    static Logger log = Logger.getGlobal();
     private final PlayerImpl player;
     private final Channel channel;
     private final Map<Integer, MousePosition> cellMousePositions = new HashMap<>();
@@ -60,8 +55,6 @@ public class PlayerConnection {
     private ConnectionState state = ConnectionState.AUTHENTICATE;
     private int protocolVersion;
     private String authToken;
-    
-    static Logger log = Logger.getGlobal();
 
     public PlayerConnection(PlayerImpl player, Channel channel) {
         this.player = player;
@@ -144,14 +137,14 @@ public class PlayerConnection {
 
     public void handle(PacketInSplit packet) {
         checkConnected();
-        for (Cell cell : player.getCells()){
+        for (Cell cell : player.getCells()) {
             if (!(cell.getMass() > OgarServer.getInstance().getConfig().player.minMassSplit)) return;
             if (player.getCells().size() >= OgarServer.getInstance().getConfig().player.maxCells) return;
             Cell newCell = cell;
-            newCell.setMass(cell.getMass()/2);
-            player.addCell(newCell);
+            newCell.setMass(cell.getMass() / 2);
+            cell.setMass(cell.getMass() / 2);
             OgarServer.getInstance().getWorld().spawnEntity(EntityType.CELL, newCell.getPosition(), player);
-            cell.setMass(cell.getMass()/2);
+            player.addCell(newCell);
         }
     }
 
@@ -165,10 +158,28 @@ public class PlayerConnection {
 
     public void handle(PacketInEjectMass packet) {
         checkConnected();
-        for (Cell cell : player.getCells()){
-            if (!(cell.getMass() > OgarServer.getInstance().getConfig().player.minMassEject)) return;
-            cell.setMass(cell.getMass() - OgarServer.getInstance().getConfig().player.minMassEject);
-            OgarServer.getInstance().getWorld().spawnEntity(EntityType.MASS, cell.getPosition(), null);
+        for (Cell cell : player.getCells()) {
+            try {
+                if (!(cell.getMass() > OgarServer.getInstance().getConfig().player.minMassEject)) return;
+                cell.setMass(cell.getMass() - OgarServer.getInstance().getConfig().player.minMassEject);
+                Entity mass = OgarServer.getInstance().getWorld().spawnEntity(EntityType.MASS, cell.getPosition(), null);
+
+                Position mouse;
+                if (player.getConnection().isIndividualMovementEnabled())
+                    mouse = new Position(getCellMousePosition(cell.getID()).getX(), getCellMousePosition(cell.getID()).getY());
+                else
+                    mouse = new Position(getGlobalMousePosition().getX(), getGlobalMousePosition().getY());
+                mouse.add(0 - cell.getPosition().getX(), 0 - cell.getPosition().getY());
+                Vector cellvec = new Vector(mouse);
+                cellvec.ReverseY();
+                EntityImpl entity = (EntityImpl) mass;
+                entity.getPhysics().setVector(cellvec);
+                entity.getPhysics().setSpeed(250);
+                entity.getPhysics().setResistance(30);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -189,9 +200,9 @@ public class PlayerConnection {
     public void handle(PacketInFacebookLogin packet) {
 
     }
-    
+
     public void handle(PacketInGoogleLogin packet) {
-    	
+
     }
 
     public void handle(PacketInAuthenticate packet) {
@@ -213,7 +224,7 @@ public class PlayerConnection {
             player.setOMPCapable(true);
         }
     }
-    
+
     public void handle(PacketChat packet) {
         checkConnected();
     }
@@ -256,6 +267,11 @@ public class PlayerConnection {
         return true;
     }
 
+    private static enum ConnectionState {
+
+        AUTHENTICATE, RESET, TOKEN, CONNECTED;
+    }
+
     public static class MousePosition {
 
         private final double x;
@@ -273,10 +289,5 @@ public class PlayerConnection {
         public double getY() {
             return y;
         }
-    }
-
-    private static enum ConnectionState {
-
-        AUTHENTICATE, RESET, TOKEN, CONNECTED;
     }
 }
