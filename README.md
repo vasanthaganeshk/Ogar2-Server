@@ -16,7 +16,6 @@ Thank you for being interested in the OgarioProject also known as Lar.io.
 * Suppressing rendering errors.
 
 # Current issues:
-* Entities sometimes not deleting properly from map.
 * No splitting/ejecting in direction.
 * Cannot move viruses with mass.
 * Cannot be split from eating a virus.
