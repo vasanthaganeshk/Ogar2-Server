@@ -117,7 +117,7 @@ public class PlayerConnection {
 
     public void handle(PacketInSpectate packet) {
         checkConnected();
-        && player.getCells().isEmpty())
+        if (player.getCells().isEmpty())
         player.getTracker().setIsSpectator(true);
     }
 
