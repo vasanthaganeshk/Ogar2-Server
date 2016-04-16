@@ -210,21 +210,19 @@ public class PlayerTracker {
 		double dist = new Position(mouse.getX(), mouse.getY()).distance(centerX, centerY);
 	    
 		double deltaX = mouse.getX() - centerX;
-        double deltaY = mouse.getY() - centerY;
-        double angle = Math.atan2(deltaX, deltaY);     
-	    double speed = Math.min(dist / 10, 190);
+        	double deltaY = mouse.getY() - centerY;
+        	double angle = Math.atan2(deltaX, deltaY);     
+	    	double speed = Math.min(dist / 10, 190);
 	    
 	    centerX += speed * Math.sin(angle);
 	    centerY += speed * Math.cos(angle);
 	    checkBorderPass();
 	    
 	    double viewMult = 3;
-	    viewBox.topY = centerY - world.getView().getBaseY() * viewMult;
-	    viewBox.bottomY = centerY + world.getView().getBaseY() * viewMult;
-	    viewBox.leftX = centerX - world.getView().getBaseX() * viewMult;
-	    viewBox.rightX = centerX + world.getView().getBaseX() * viewMult;
-	    viewBox.width = world.getView().getBaseX() * viewMult;
-	    viewBox.height = world.getView().getBaseY() * viewMult;
+            viewTop = centerY - rangeY;
+            viewBottom = centerY + rangeY;
+            viewLeft = centerX - rangeX;
+            viewRight = centerX + rangeX;
 	    
 	    double zoom = 500;
 	    zoom = Math.pow(Math.min(40.5 / zoom, 1.0), 0.4) * 0.6;
