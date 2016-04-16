@@ -263,12 +263,15 @@ public class PlayerConnection {
             return false;
         }
         final PlayerConnection other = (PlayerConnection) obj;
-        return Objects.equals(this.channel, other.channel);
+        if (!Objects.equals(this.channel, other.channel)) {
+            return false;
+        }
+        return true;
     }
 
-    private enum ConnectionState {
+    private static enum ConnectionState {
 
-        AUTHENTICATE, RESET, TOKEN, CONNECTED
+        AUTHENTICATE, RESET, TOKEN, CONNECTED;
     }
 
     public static class MousePosition {

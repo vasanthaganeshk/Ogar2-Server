@@ -140,8 +140,11 @@ public abstract class EntityImpl extends PhysicsSupport implements Entity, Ticka
     }
 
     public boolean collisionCheck(double bottomY, double topY, double rightX, double leftX) {
-        return !(getY() > bottomY || getY() < topY || getX() > rightX || getX() < leftX);
+        if (getY() > bottomY || getY() < topY || getX() > rightX || getX() < leftX) {
+            return false;
+        }
 
+        return true;
     }
 
     /**
@@ -177,7 +180,10 @@ public abstract class EntityImpl extends PhysicsSupport implements Entity, Ticka
         if (this.id != other.id) {
             return false;
         }
-        return this.type == other.type;
+        if (this.type != other.type) {
+            return false;
+        }
+        return true;
     }
 
 }
