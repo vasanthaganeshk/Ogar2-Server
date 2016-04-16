@@ -7,8 +7,7 @@ Thank you for being interested in the OgarioProject also known as Lar.io.
 (**NOTE:** This are experimental builds! We cannot gurrantee that it will work at all!)
 
 # Current features above original Ogar2:
-* Logging in with Facebook.
-* Logging in with Google.
+* Logging in with Facebook and Google.
 * Splitting (Beta).
 * Ejecting (Beta).
 * Multi-Colored food.
@@ -21,6 +20,9 @@ Thank you for being interested in the OgarioProject also known as Lar.io.
 * Cannot be split from eating a virus.
 
 # Team Members:
-* SkorrloreGaming-Productions (Developer/Project Lead)
-* ThunderGemios10 (Developer/CEO)
-* PoramaTV (Developer)
+* ThunderGemios10 (Project Lead/CEO)
+* PoramaTV (Lead Developer)
+
+
+# Retired Team Members:
+* SkorrloreGaming-Productions (Former Developer/Former Project Lead)
