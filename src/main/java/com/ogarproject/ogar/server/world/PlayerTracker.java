@@ -49,6 +49,8 @@ public class PlayerTracker {
         this.conn = player.getConnection();
         this.world = OgarServer.getInstance().getWorld();
     }
+    
+    private boolean isSpectator = false, isFreeCamera;
 
     public void remove(EntityImpl entity) {
         if (!removalQueue.contains(entity)) {
@@ -124,6 +126,10 @@ public class PlayerTracker {
         // Process the removal queue
         Set<Integer> updates = new HashSet<>();
         Set<EntityImpl> removals = new HashSet<>();
+			if (isSpectator())
+				newVisible = getEntitiesForSpect();
+			else
+				newVisible = calculateEntitiesInView();
         synchronized (removalQueue) {
             removals.addAll(removalQueue);
             removalQueue.clear();
@@ -174,4 +180,72 @@ public class PlayerTracker {
 
         conn.sendPacket(new PacketOutUpdateNodes(world, removals, updates));
     }
+    
+	public List<Integer> getEntitiesForSpect()
+	{
+		if(isSpectator())
+    	{
+    		Player target = world.getLargestPlayer();
+    		if(target != null)
+    		{
+    			if(!isFreeCamera())
+    			{
+    				double zoom = Math.sqrt(100 * target.getTotalMass());
+    				zoom = Math.pow(Math.min(40.5 / zoom, 1.0), 0.4) * 0.6;
+    				setCenterPos(new Position(target.getTracker().centerX, target.getTracker().centerY));
+    		        player.sendPacket(new PacketOutUpdatePosition(centerX, centerY, zoom));
+    		        
+    		        return target.getTracker().getVisibleEntities();
+    			}
+    		}
+    		else
+    			return getEntitiesInFreeCamera();
+    	}
+		return getEntitiesInFreeCamera();
+	}
+	
+	public List<Integer> getEntitiesInFreeCamera()
+	{
+		MousePosition mouse = player.getConnection().getGlobalMousePosition();
+		double dist = new Position(mouse.getX(), mouse.getY()).distance(centerX, centerY);
+	    
+		double deltaX = mouse.getX() - centerX;
+        double deltaY = mouse.getY() - centerY;
+        double angle = Math.atan2(deltaX, deltaY);     
+	    double speed = Math.min(dist / 10, 190);
+	    
+	    centerX += speed * Math.sin(angle);
+	    centerY += speed * Math.cos(angle);
+	    checkBorderPass();
+	    
+	    double viewMult = 3;
+	    viewBox.topY = centerY - world.getView().getBaseY() * viewMult;
+	    viewBox.bottomY = centerY + world.getView().getBaseY() * viewMult;
+	    viewBox.leftX = centerX - world.getView().getBaseX() * viewMult;
+	    viewBox.rightX = centerX + world.getView().getBaseX() * viewMult;
+	    viewBox.width = world.getView().getBaseX() * viewMult;
+	    viewBox.height = world.getView().getBaseY() * viewMult;
+	    
+	    double zoom = 500;
+	    zoom = Math.pow(Math.min(40.5 / zoom, 1.0), 0.4) * 0.6;
+        player.sendPacket(new PacketOutUpdatePosition(centerX, centerY, zoom));
+	    
+		return calculateEntitiesInView();
+		
+	}
+	
+	public boolean isSpectator()
+	{
+		return isSpectator;
+	}
+
+	public boolean isFreeCamera()
+	{
+		return isFreeCamera;
+	}
+
+	public void setIsSpectator(boolean flag)
+	{
+		isSpectator = flag;
+	}
 }
