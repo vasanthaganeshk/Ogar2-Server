@@ -19,10 +19,13 @@ package com.ogarproject.ogar.server.world;
 import com.google.common.collect.ImmutableList;
 import com.ogarproject.ogar.api.Ogar;
 import com.ogarproject.ogar.api.entity.Cell;
+import com.ogarproject.ogar.api.world.Position;
 import com.ogarproject.ogar.server.OgarServer;
 import com.ogarproject.ogar.server.entity.EntityImpl;
 import com.ogarproject.ogar.server.net.PlayerConnection;
+import com.ogarproject.ogar.server.net.PlayerConnection.MousePosition;
 import com.ogarproject.ogar.server.net.packet.outbound.PacketOutUpdateNodes;
+import com.ogarproject.ogar.server.net.packet.outbound.PacketOutUpdatePosition;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +51,19 @@ public class PlayerTracker {
         this.player = player;
         this.conn = player.getConnection();
         this.world = OgarServer.getInstance().getWorld();
+    }
+    
+    public void setCenterX(double x) {
+    	centerX = x;
+    }
+
+    public void setCenterY(double y) {
+    	centerY = y;
+    }
+
+    public void setCenterPos(Position pos) {
+    	centerX = pos.getX();
+    	centerY = pos.getY();
     }
     
     private boolean isSpectator = false, isFreeCamera;
@@ -126,10 +142,6 @@ public class PlayerTracker {
         // Process the removal queue
         Set<Integer> updates = new HashSet<>();
         Set<EntityImpl> removals = new HashSet<>();
-			if (isSpectator())
-				newVisible = getEntitiesForSpect();
-			else
-				newVisible = calculateEntitiesInView();
         synchronized (removalQueue) {
             removals.addAll(removalQueue);
             removalQueue.clear();
@@ -142,6 +154,10 @@ public class PlayerTracker {
             // Get the new list of entities in view
             List<Integer> newVisible = calculateEntitiesInView();
 
+			if (isSpectator())
+				newVisible = getEntitiesForSpect();
+			else
+				newVisible = calculateEntitiesInView();
             synchronized (visibleEntities) {
                 // Destroy now-invisible entities
                 for (Iterator<Integer> it = visibleEntities.iterator(); it.hasNext(); ) {
@@ -185,7 +201,7 @@ public class PlayerTracker {
 	{
 		if(isSpectator())
     	{
-    		Player target = world.getLargestPlayer();
+    		PlayerImpl target = world.getLargestPlayer();
     		if(target != null)
     		{
     			if(!isFreeCamera())
@@ -203,7 +219,7 @@ public class PlayerTracker {
     	}
 		return getEntitiesInFreeCamera();
 	}
-	
+
 	public List<Integer> getEntitiesInFreeCamera()
 	{
 		MousePosition mouse = player.getConnection().getGlobalMousePosition();
@@ -230,6 +246,21 @@ public class PlayerTracker {
 	    
 		return calculateEntitiesInView();
 		
+	}
+	
+	public void checkBorderPass() {
+	    if (centerX < world.getBorder().getLeft()) {
+	    	centerX = world.getBorder().getLeft();
+	    }
+	    if (centerX > world.getBorder().getRight()) {
+	    	centerX = world.getBorder().getRight();
+	    }
+	    if (centerY < world.getBorder().getTop()) {
+	    	centerY = world.getBorder().getTop();
+	    }
+	    if (centerY > world.getBorder().getBottom()) {
+	    	centerY = world.getBorder().getBottom();
+	    }
 	}
 	
 	public boolean isSpectator()

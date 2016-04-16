@@ -29,6 +29,7 @@ import com.ogarproject.ogar.server.entity.impl.CellImpl;
 import com.ogarproject.ogar.server.entity.impl.FoodImpl;
 import com.ogarproject.ogar.server.entity.impl.MassImpl;
 import com.ogarproject.ogar.server.entity.impl.VirusImpl;
+import com.ogarproject.ogar.server.net.packet.outbound.PacketOutUpdateLeaderboardFFA;
 import com.ogarproject.ogar.server.tick.Tickable;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -73,6 +74,10 @@ public class WorldImpl implements World {
     public EntityImpl spawnEntity(EntityType type, Position position) {
         return spawnEntity(type, position, null);
     }
+    
+	public PlayerImpl getLargestPlayer() {
+		return new PacketOutUpdateLeaderboardFFA(server).getPlayerAtIndex(0);		
+	}
 
     public CellImpl spawnPlayerCell(PlayerImpl player) {
         return spawnPlayerCell(player, getRandomPosition());

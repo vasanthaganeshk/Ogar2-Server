@@ -21,7 +21,9 @@ import com.ogarproject.ogar.api.Ogar;
 import com.ogarproject.ogar.api.Player;
 import com.ogarproject.ogar.server.entity.impl.CellImpl;
 import com.ogarproject.ogar.server.net.PlayerConnection;
+import com.ogarproject.ogar.server.net.packet.Packet;
 import com.ogarproject.ogar.server.net.packet.outbound.PacketOutAddNode;
+import com.ogarproject.ogar.server.net.packet.outbound.PacketOutUpdatePosition;
 import com.ogarproject.ogar.server.net.packet.universal.PacketOMPMessage;
 import io.netty.channel.Channel;
 
@@ -201,6 +203,10 @@ public class PlayerImpl implements Player {
     public Color getCellsColor()
     {
     	return cellsColor;
+    }
+    
+    public void sendPacket(Packet packet) {
+    	getConnection().sendPacket(packet);
     }
 
 

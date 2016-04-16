@@ -73,5 +73,16 @@ public class PacketOutUpdateLeaderboardFFA extends Packet {
                         return 1;
                 return 0;
         };
+        
+        public PlayerImpl getPlayerAtIndex(int index) {
+        	if(index + 1 > getSize())
+        		return null;
+
+        	return allParticates.get(index);
+        }
+
+        public int getSize() {
+        	return allParticates.size();
+        }
 }
  
