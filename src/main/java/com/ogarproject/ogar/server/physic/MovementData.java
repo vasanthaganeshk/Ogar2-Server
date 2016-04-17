@@ -1,77 +1,37 @@
 package com.ogarproject.ogar.server.physic;
 
-import com.ogarproject.ogar.api.entity.Entity;
-
 /**
- * Created by Porama2 on 1/4/2016.
+ * Created by Porama2 on 2/4/2016.
  */
-public class PhysicsData {
-    final Entity entity;
-    public MovementData movement = new MovementData();
-    double resistance = 0;
+public class MovementData {
+    double angle = 0;
+    double speed = 0;
 
-    public PhysicsData(Entity entityowner) {
-        entity = entityowner;
-    }
+    public MovementData(){}
 
-    public double getResistance() {
-        return resistance;
-    }
-
-    public void setResistance(double resistance) {
-        this.resistance = resistance;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public boolean isUpdateNeeded() {
-        return !(movement.getSpeed() == 0);
-    }
-
-    public Vector getVector() {
-        return Calc.getVectorFromMovement(movement.getAngle(), movement.getSpeed());
-    }
-
-    public void setVector(Vector vector) {
-        movement = Calc.getMovementFromVector(vector);
-    }
-
-    public void setMovement(MovementData record) {
-        movement = record;
-    }
-
-    public double getSpeed() {
-        return movement.getSpeed();
+    public MovementData(double angle, double speed){
+        setAngle(angle);
+        setSpeed(speed);
     }
 
     public void setSpeed(double speed) {
-        movement.setSpeed(speed);
+        this.speed = speed;
     }
 
-    public double getAngle() {
-        return movement.getAngle();
+    public double getSpeed() {
+        return speed;
     }
 
     public void setAngle(double angle) {
-        movement.setAngle(angle);
+        this.angle = angle;
     }
 
-    public void UpdatePosition() {
-        Vector vector = getVector();
-        entity.setPosition(Calc.KeepInWorld(entity.getPosition().add(vector.getX(), 0 - vector.getY())));
+    public double getAngle() {
+        return angle;
     }
 
-    public void UpdateData() {
-        double speed = movement.getSpeed();
-        speed -= resistance;
-        if (speed < 0) speed = 0;
-        movement.setSpeed(speed);
-    }
-
-    public void Update() {
-        UpdatePosition();
-        UpdateData();
+    @Override
+    public String toString() {
+        return "Movement(" + angle + "," + speed + ")";
     }
 }
